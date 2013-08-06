@@ -185,31 +185,35 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
   *
   **/
   function get_the_images($showImg = false, $showThumbs = false, $imgSize = 'full', $thumbSize = 'thumbnail') {
-    $array = get_post_slide_images($imgSize, $thumbSize);
+    $images = array();
+    $imgs = array();
+    
+    $thumbnails = array();
+    $thumbs = array();
 
-   /**
-    * IMAGES
-    **/
-    if($showImg) {
-      $images = array();
-      $imgs = array();
-      $iArgs = array(
+    $array = get_post_slide_images($imgSize, $thumbSize);
+    $args = array(
         0 => 'src',
         1 => 'width',
         2 => 'height',
         3 => 'resized'
       );
 
-      $i = 0;
-      foreach ($array as $name => $arr) {
-        $images[$i] = $array[$name][1];
-        $i++;
-      }
+    $i = 0;
+    foreach ($array as $name => $arr) {
+      if($showImg) $images[$i] = $array[$name][1];
+      if($showThumbs) $thumbnails[$i] = $array[$name][0];
+      $i++;
+    }
 
+   /**
+    * IMAGES
+    **/
+    if($showImg) {
       $i = 0;
       foreach ($images as $key => $value) {
         foreach ($images[$i] as $key => $value) {
-          $type = $iArgs[$key];
+          $type = $args[$key];
           $imgs[$i][$type] = $value;
         } $i++;
       }
@@ -219,25 +223,10 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
     * THUMBNAILS
     **/
     if($showThumbs) {
-      $thumbnails = array();
-      $thumbs = array();
-      $tArgs = array(
-        0 => 'src',
-        1 => 'width',
-        2 => 'height',
-        3 => 'resized'
-      );
-
-      $i = 0;
-      foreach ($array as $name => $arr) {
-        $thumbnails[$i] = $array[$name][0];
-        $i++;
-      }
-
       $i = 0;
       foreach ($thumbnails as $key => $value) {
         foreach ($thumbnails[$i] as $key => $value) {
-          $type = $tArgs[$key];
+          $type = $args[$key];
           $thumbs[$i][$type] = $value;
         } $i++;
       }
