@@ -1,5 +1,5 @@
 ---------------------------------------------
-CUSTOM SIDEBAR PLUGIN HOW TO:
+ADD IMG METABOX PLUGIN HOW TO:
 ---------------------------------------------
 
 1. Install and activate the plugin
