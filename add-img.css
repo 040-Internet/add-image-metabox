@@ -1,0 +1,79 @@
+/* -----------------------------------
+	GENERAL STYLING
+----------------------------------- */
+#add_img_metabox .inside {
+	display: inline-block;
+}
+
+#droppable {
+	max-width: 856px;
+	float: left;
+}
+
+.right {
+	float: right;
+	max-width: 223px;
+}
+
+.image-entry {
+	float: left;
+	padding: 20px;
+	margin: 10px;
+	background: #fff;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+.img-preview {
+	width: 150px;
+	height: 150px;
+	background: #f5f5f5;
+	margin-bottom: 15px;
+	border: 1px solid #ccc;
+}
+
+.add-more-slides,
+.remove-slides {
+	width: 160px;
+	cursor: pointer;
+	margin: 0px;
+	padding: 20px;
+	float: right;
+	margin: 10px;
+	background: #fff;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+
+
+
+
+/* -----------------------------------
+	DRAGGABLE STYLING
+----------------------------------- */
+[draggable] {
+	  -moz-user-select: none;
+	  -khtml-user-select: none;
+	  -webkit-user-select: none;
+	  user-select: none;
+	}
+
+	.img-preview{
+		position:relative;
+	}
+
+	.img-preview img{
+		position:absolute;
+		top:0;
+		left:0;
+	}
+
+	.image-entry.over{
+		border: 1px dashed #000;
+	}
+
+	.get-image,.del-image{
+		margin-top:10px !important;
+		display:block !important;
+	}
