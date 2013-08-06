@@ -36,9 +36,8 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
 				'image1' => '_image1',
 				'image2' => '_image2',
 				'image3' => '_image3',
-				);
+			);
 		}
-		
 
 		$list_images = apply_filters('list_images', $imageArray);
 
@@ -148,8 +147,6 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
 	* of the image and the thumbnail (src, width, height and resized).
 	*
  	**/
-
-
 	function get_post_slide_images($large = null, $small = null) {
 		global $post;
 		$the_id = $post->ID;
@@ -187,17 +184,16 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
   function get_the_images($showImg = false, $showThumbs = false, $imgSize = 'full', $thumbSize = 'thumbnail') {
     $images = array();
     $imgs = array();
-    
     $thumbnails = array();
     $thumbs = array();
 
     $array = get_post_slide_images($imgSize, $thumbSize);
     $args = array(
-        0 => 'src',
-        1 => 'width',
-        2 => 'height',
-        3 => 'resized'
-      );
+      0 => 'src',
+      1 => 'width',
+      2 => 'height',
+      3 => 'resized'
+    );
 
     $i = 0;
     foreach ($array as $name => $arr) {
@@ -205,7 +201,7 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
       if($showThumbs) $thumbnails[$i] = $array[$name][0];
       $i++;
     }
-
+    
    /**
     * IMAGES
     **/
