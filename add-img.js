@@ -1,70 +1,116 @@
-(function($) {
+(function($) { 
+$(function() {
+var doc = $(document);
+var formfield = null;
+var num = '';
 
-	var doc = $(document);
-	var formfield = null;
-	var num = '';
 
-  doc.on('click', '.get-image', function(e) {
-    e.preventDefault();
 
-    $('html').addClass('image_spe');
-		num = $(this).data('num');
-		formfield = $('.id_img[data-num="'+num+'"]').attr('name');
+/**
+ *
+ * If user click on the button "Delete", this functions
+ * will remove that image box and reorder the images
+ *
+ **/
+doc.on('click', '.remove-slide', function() {
+	var number = $(this).data('num');
+	$(this).parent().remove();
+	var currSlideAmount = parseInt($('.slide-amount').val());
+	$('.slide-amount').val(--currSlideAmount);
 
-    var id = $("#post_ID").val();
-    tb_show('', 'media-upload.php?post_id='+id+'&type=image&TB_iframe=true');
-  });
-
-  doc.on('click', '.del-image', function() {
-		var number = $(this).data('num');
-		$('.img-preview[data-num="'+number+'"]').empty();
-		$('.id_img[data-num="'+number+'"]').val('');
+	// reorder images
+	$('#droppable .image-entry').each(function(i){
+		//rewrite attr
+		var num = i+1;
+		$(this).find('.get-image').attr('data-num',num);
+		$(this).find('.del-image').attr('data-num',num);
+		$(this).find('div.img-preview').attr('data-num',num);
+		var $input = $(this).find('input');
+		$input.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
 	});
+});
 
-  // user inserts file into post. only run custom if user started process using the above process
-	// window.send_to_editor(html) is how wp would normally handle the received data
 
-	window.original_send_to_editor = window.send_to_editor;
-	window.send_to_editor = function(html){
-    var fileurl;
-		if (formfield) {
-			var matches = html.match(/wp-image-([0-9]*)/);
-			var imgfull = $(html).find('img').css({width:"150px", height:"150px"});
 
-			$('input[name="'+formfield+'"]').val(matches[1]);
-			$('.img-preview[data-num="'+num+'"]').append($(imgfull));
+/**
+ * 
+ * Hijacking Wordpress 3.5 media uploader.
+ *
+ * When clicking on "Add image" (.get-image), we open the media
+ * uploader (at the end of the function).
+ *
+ * The variable "_custom_media" will define if the user clicked
+ * on wordpress media uploader button, or this plugins "Add image"-button.
+ *
+ * We assign the _custom_media with 'true'.
+ *
+ * When the user click on "Insert into post", we hijack the media
+ * uploader send function and check if _custom_media is true, if
+ * it is, we do the inserts etc.
+ * 
+ * If its NOT (i.e the user is using wordpress media uploader)
+ * we return the normal wordpress media uploader.
+ *
+ **/
+var _custom_media = true;
+var _orig_send_attachment = wp.media.editor.send.attachment;
+doc.on('click', '.get-image', function() {
+	var send_attachment_bkp = wp.media.editor.send.attachment;
+	num = $(this).data('num');
+	formfield = $('.id_img[data-num="'+num+'"]').attr('name');
+	_custom_media = true;
 
-			tb_remove();
+  wp.media.editor.send.attachment = function(props, attachment) {
+    if ( _custom_media ) {
+	    _custom_media = false;
 
-			$('html').removeClass('image_spe');
+	    $('input[name="'+formfield+'"]').val(attachment.id);
+      $('.img-preview[data-num="'+num+'"]').append('<img src="'+attachment.sizes.thumbnail.url+'"/>');
+  		num = null;
+    } else {
+      return _orig_send_attachment.apply( this, [props, attachment] );
+    }
+  }
 
-			formfield = null;
-			num = null;
-		}else{
-			window.original_send_to_editor(html);
-		}
+  wp.media.editor.open(this);
+	return false;
+});
+
+
+
+/**
+ *
+ * This functions will turn _custom_media to false, to prevent
+ * the function above to "bug" wordpress normal media upload functionality
+ *
+ **/
+doc.on('click', '.media-modal-close, .media-modal-backdrop', function() {
+	_custom_media = false;
+});
+
+
+/**
+ *
+ * This functions will add a new image box when clicking
+ * on the "+" symbol
+ *
+ **/
+doc.on('click', '.add-more-slides', function() {
+	var action = $(this).data('action');
+	var hiddenInput = $('.slide-amount');
+	var slideAmount = parseInt(hiddenInput.val());
+
+	if(action == 'add') {
+  	var newAmount = ++slideAmount;
+  	$(hiddenInput).val(newAmount);
+
+  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><a class="get-image button-primary" data-num="'+newAmount+'">Add image</a><a class="remove-slide button-secondary" data-num="'+newAmount+'">Delete</a></div>';
+
+  	$(html).insertBefore($('#droppable .add-more-slides'));
 	}
+});
 
 
-	doc.on('click', '.add-more-slides, .remove-slides', function() {
-		var action = $(this).data('action');
-  	var hiddenInput = $('.slide-amount');
-		var slideAmount = parseInt(hiddenInput.val());
 
-		if(action == 'add') {
-	  	var newAmount = ++slideAmount;
-	  	$(hiddenInput).val(newAmount);
-
-	  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><a class="get-image button-primary" data-num="'+newAmount+'">Add New</a><a class="del-image button-secondary" data-num="'+newAmount+'">Delete</a></div>';
-
-	  	$('#droppable').append(html);
-		} else {
-	  	var newAmount = --slideAmount;
-	  	$(hiddenInput).val(newAmount);
-
-	  	$('#droppable').children().last().remove();
-		}
-
-  });
-
+});
 }(jQuery));

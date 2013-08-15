@@ -12,7 +12,7 @@ THE CODE:
 ---------------------------------------------
 
 <?php
-	$imgs = get_the_images(true, true);
+	$imgs = AIM_get_the_images(true, true);
 	var_dump($imgs);
 ?>
 
@@ -21,7 +21,7 @@ THE CODE:
 NOTE:
 ---------------------------------------------
 
-get_the_images(true, true);
+AIM_get_the_images(true, true);
 
 The first parameter is full size image the second is thumbnails.
 If you only want thumbnails, simply write get_the_images(false, true)
