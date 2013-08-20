@@ -12,6 +12,8 @@ This is a revision of a plugin called "Multi Image Metabox" originally created b
 What did I change/add?
 - Added a functions to add unlimited new slides for each post type.
 - Added a function to get the images in a nice array, to make it easier to use them.
+- Added a textarea to each image slot.
+- Made the delete button remove the slide you press delete on.
 - I've also made the code structure more readable (imo).
 
 LICENSE:
@@ -133,7 +135,7 @@ function aim_save_details($post_ID) {
     if(isset($_POST[$k])) {
       check_admin_referer('image-slide-save_'.$_POST['post_ID'], 'image-slide-nonce');
       update_post_meta($post_ID, $i, esc_html($_POST[$k]));
-      update_post_meta($post_ID, 'text_'.$i, esc_html($_POST['text_'.$k]));
+      update_post_meta($post_ID,'text_'.$i, esc_html($_POST['text_'.$k]));
     }
   }
 
@@ -199,10 +201,10 @@ function aim_get_post_slide_images($large = null, $small = null) {
 
   $imgsWithIds = array();
   foreach ($image_slots['imgs'] as $img => $id) {
-    if($i = get_post_meta($the_id,$id,true))
+    if($i = get_post_meta($the_id,$id,true)) {
       $imgsWithIds[$img] = $i;
+    }
   }
-
 
   $imgAndThumb = array();
   foreach($imgsWithIds as $k => $id) {
@@ -226,9 +228,8 @@ function aim_get_post_slide_images($large = null, $small = null) {
 *
 **/
 function aim_get_the_images($imgSize = 'full', $thumbSize = 'thumbnail') {
-  $result = array();
-
   $props = aim_get_post_slide_images($imgSize, $thumbSize);
+  $result = array();
   $keys = array(
     'full_src',
     'full_width',
