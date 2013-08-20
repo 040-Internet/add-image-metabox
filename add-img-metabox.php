@@ -19,9 +19,36 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
 */
 
 
+
 /**
 *
-* AIM_list_my_images_slots()
+* Javascripts & CSS
+*
+* Loading all the css and js that i needed here
+*
+**/
+function aim_add_css() {
+  if(is_admin()) {
+    wp_enqueue_style('add-img-mb-css', plugins_url('/add-img.css',__FILE__));
+  }
+}
+
+function aim_add_js() {
+  if(is_admin()) {
+    wp_enqueue_script('add-img-mb-draggable-js', plugins_url('/add-img-draggable.js',__FILE__), array('jquery'));
+    wp_enqueue_script('add-img-mb-js', plugins_url('/add-img.js',__FILE__), array('jquery'));
+    wp_enqueue_script('jquery-ui-draggable');
+  }
+}
+
+add_action('admin_init', 'aim_add_css');
+add_action('admin_init', 'aim_add_js');
+
+
+
+/**
+*
+* aim_list_my_images_slots()
 *
 * This function defines how many imageboxes there should be on
 * each page. The function checks if there is any option for more
@@ -29,7 +56,7 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
 * amount instead.
 *
 **/
-function AIM_list_my_images_slots() {
+function aim_list_my_images_slots() {
   global $post;
   $slideAmount = get_post_meta($post->ID, 'slide-amount', true);
 
@@ -60,18 +87,18 @@ function AIM_list_my_images_slots() {
 * and load all the necessary stuff.
 *
 **/
-add_action('add_meta_boxes', 'AIM_metabox');
-function AIM_metabox() {
+add_action('add_meta_boxes', 'aim_metabox');
+function aim_metabox() {
   $cpts = apply_filters('images_cpt', array('page'));
 
   foreach($cpts as $cpt) {
     add_meta_box(
-    'add_img_metabox',
-    __('Add images'),
-    'AIM_markup',
-    $cpt,
-    'normal',
-    'core'
+      'add_img_metabox',
+      __('Add images'),
+      'aim_markup',
+      $cpt,
+      'normal',
+      'core'
     );
   }
 }
@@ -82,17 +109,17 @@ function AIM_metabox() {
 * SAVE METABOX 
 *
 **/
-add_action('save_post', 'AIM_save_details'); 
-function AIM_save_details($post_ID) { 
-  if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
-    return $post_id;
+add_action('save_post', 'aim_save_details'); 
+function aim_save_details($post_ID) { 
+  if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+    return $post_ID;
   }
    
   update_post_meta($post_ID, 'slide-amount', $_POST['slide-amount']);
 
-  $list_images = AIM_list_my_images_slots();
+  $list_images = aim_list_my_images_slots();
   foreach($list_images as $k => $i) {
-    if (isset($_POST[$k])) {
+    if(isset($_POST[$k])) {
       check_admin_referer('image-slide-save_'.$_POST['post_ID'], 'image-slide-nonce');
       update_post_meta($post_ID, $i, esc_html($_POST[$k]));
     }
@@ -107,8 +134,8 @@ function AIM_save_details($post_ID) {
 * This functions handles all the markup and loading scripts/styles etc
 *
 **/
-function AIM_markup($post) {
-  $list_images = AIM_list_my_images_slots();
+function aim_markup($post) {
+  $list_images = aim_list_my_images_slots();
   $slideAmount = get_post_meta($post->ID, 'slide-amount', true);
 
   if($slideAmount) {
@@ -116,11 +143,6 @@ function AIM_markup($post) {
   } else {
     $value = '3';
   }
-
-  wp_enqueue_script( 'add-img-mb-draggable-js', plugins_url('/add-img-draggable.js',__FILE__), array( 'jquery' ) );
-  wp_enqueue_script( 'add-img-mb-js', plugins_url('/add-img.js',__FILE__), array( 'jquery' ) );
-  wp_enqueue_script( 'jquery-ui-draggable' );
-  wp_enqueue_style( 'add-img-mb-css', plugins_url('/add-img.css',__FILE__) );
 
   wp_nonce_field( 'image-slide-save_'.$post->ID, 'image-slide-nonce');
   echo '<input type="hidden" name="slide-amount" class="slide-amount" value="'.$value.'" />';
@@ -146,17 +168,17 @@ function AIM_markup($post) {
 
 /**
 *
-* AIM_get_post_slide_images()
+* aim_get_post_slide_images()
 *
 * This function push each image in an array with both the image and its ID.
 * Then it use that array to create the final array that contains the attributes
 * of the image and the thumbnail (src, width, height and resized).
 *
 **/
-function AIM_get_post_slide_images($large = null, $small = null) {
+function aim_get_post_slide_images($large = null, $small = null) {
   global $post;
   $the_id = $post->ID;
-  $list_images = AIM_list_my_images_slots();
+  $list_images = aim_list_my_images_slots();
 
   $imgsWithIds = array();
   foreach ($list_images as $key => $img) {
@@ -173,7 +195,7 @@ function AIM_get_post_slide_images($large = null, $small = null) {
 
 /**
 *
-* AIM_get_the_images()
+* aim_get_the_images()
 *
 * This is the main function you should use in your loop. The function makes
 * the imgAndThumb array look better and also makes it easier to use.
@@ -187,13 +209,13 @@ function AIM_get_post_slide_images($large = null, $small = null) {
 * Standard sizes are 'full' and 'thumbnail'
 *
 **/
-function AIM_get_the_images($showImg = false, $showThumbs = false, $imgSize = 'full', $thumbSize = 'thumbnail') {
+function aim_get_the_images($showImg = false, $showThumbs = false, $imgSize = 'full', $thumbSize = 'thumbnail') {
   $images = array();
   $imgs = array();
   $thumbnails = array();
   $thumbs = array();
 
-  $array = AIM_get_post_slide_images($imgSize, $thumbSize);
+  $array = aim_get_post_slide_images($imgSize, $thumbSize);
   $args = array(
     0 => 'src',
     1 => 'width',
