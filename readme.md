@@ -12,17 +12,14 @@ THE CODE:
 ---------------------------------------------
 
 <?php
-	$imgs = aim_get_the_images(true, true);
+	$imgs = aim_get_the_images();
 	var_dump($imgs);
 ?>
 
 
 ---------------------------------------------
-NOTE:
+PARAMETERS:
 ---------------------------------------------
 
-aim_get_the_images(true, true);
-
-The first parameter is full size image the second is thumbnails.
-If you only want thumbnails, simply write get_the_images(false, true)
-and vice versa.
+The function takes two params (img sizes), the first one is full size
+and the second one is the thumbnails size. Standard is 'full' and 'thumbnail'

@@ -48,7 +48,7 @@ add_action('admin_init', 'aim_add_js');
 
 /**
 *
-* aim_list_my_images_slots()
+* aim_list_my_image_slots()
 *
 * This function defines how many imageboxes there should be on
 * each page. The function checks if there is any option for more
@@ -56,14 +56,16 @@ add_action('admin_init', 'aim_add_js');
 * amount instead.
 *
 **/
-function aim_list_my_images_slots() {
+function aim_list_my_image_slots() {
   global $post;
   $slideAmount = get_post_meta($post->ID, 'slide-amount', true);
 
   if($slideAmount) {
     $imageArray = array();
+    $imageTextArray = array();
     for ($i=1; $i <= $slideAmount; $i++) { 
       $imageArray['image'.$i] = '_image' . $i;
+      $imageTextArray['image'.$i] = '_image' . $i;
     }
   } else {
     $imageArray = array(
@@ -71,11 +73,20 @@ function aim_list_my_images_slots() {
       'image2' => '_image2',
       'image3' => '_image3',
     );
+
+    $imageTextArray = array(
+      'text_image1' => 'text_image1',
+      'text_image2' => 'text_image2',
+      'text_image3' => 'text_image3',
+    );
   }
 
-  $list_images = apply_filters('list_images', $imageArray);
+  $slots = array(
+    'imgs' => $imageArray,
+    'texts' => $imageTextArray
+  );
 
-  return $list_images;
+  return $slots;
 }
 
 
@@ -117,13 +128,15 @@ function aim_save_details($post_ID) {
    
   update_post_meta($post_ID, 'slide-amount', $_POST['slide-amount']);
 
-  $list_images = aim_list_my_images_slots();
-  foreach($list_images as $k => $i) {
+  $image_slots = aim_list_my_image_slots();
+  foreach($image_slots['imgs'] as $k => $i) {
     if(isset($_POST[$k])) {
       check_admin_referer('image-slide-save_'.$_POST['post_ID'], 'image-slide-nonce');
       update_post_meta($post_ID, $i, esc_html($_POST[$k]));
+      update_post_meta($post_ID, 'text_'.$i, esc_html($_POST['text_'.$k]));
     }
   }
+
 }
 
 
@@ -135,7 +148,7 @@ function aim_save_details($post_ID) {
 *
 **/
 function aim_markup($post) {
-  $list_images = aim_list_my_images_slots();
+  $image_slots = aim_list_my_image_slots();
   $slideAmount = get_post_meta($post->ID, 'slide-amount', true);
 
   if($slideAmount) {
@@ -149,12 +162,16 @@ function aim_markup($post) {
 
   echo '<div id="droppable">';
   $z = 1;
-  foreach($list_images as $k=>$i) {
+  foreach($image_slots['imgs'] as $k=>$i) {
     $meta = get_post_meta($post->ID,$i,true);
+    $text = get_post_meta($post->ID,'text_'.$i,true);
     $img = ($meta) ? '<img src="'.wp_get_attachment_thumb_url($meta).'" alt="">' : '';
     echo '<div class="image-entry">';
     echo '<input type="hidden" name="'.$k.'" id="'.$k.'" class="id_img" data-num="'.$z.'" value="'.$meta.'">';
     echo '<div class="img-preview" data-num="'.$z.'">'.$img.'</div>';
+
+    echo '<textarea name="text_'.$k.'" id="text_'.$k.'" class="id_text" data-num="'.$z.'">'.$text.'</textarea>';
+
     echo '<a class="get-image button-primary" data-num="'.$z.'">'.__('Add image').'</a>';
     echo '<a class="remove-slide button-secondary" data-num="'.$z.'">'.__('Delete').'</a>';
     echo '</div>';
@@ -178,17 +195,19 @@ function aim_markup($post) {
 function aim_get_post_slide_images($large = null, $small = null) {
   global $post;
   $the_id = $post->ID;
-  $list_images = aim_list_my_images_slots();
+  $image_slots = aim_list_my_image_slots();
 
   $imgsWithIds = array();
-  foreach ($list_images as $key => $img) {
-    if($i = get_post_meta($the_id,$img,true))
-      $imgsWithIds[$key] = $i;
+  foreach ($image_slots['imgs'] as $img => $id) {
+    if($i = get_post_meta($the_id,$id,true))
+      $imgsWithIds[$img] = $i;
   }
 
+
   $imgAndThumb = array();
-  foreach($imgsWithIds as $k => $id)
-    $imgAndThumb[$k] = array(wp_get_attachment_image_src($id, $small),wp_get_attachment_image_src($id, $large));
+  foreach($imgsWithIds as $k => $id) {
+    $imgAndThumb[$k] = array(wp_get_attachment_image_src($id, $small), wp_get_attachment_image_src($id, $large), get_post_meta($the_id, 'text_'.$image_slots['texts'][$k], true));
+  }
   return $imgAndThumb;
 }
 
@@ -199,65 +218,34 @@ function aim_get_post_slide_images($large = null, $small = null) {
 *
 * This is the main function you should use in your loop. The function makes
 * the imgAndThumb array look better and also makes it easier to use.
-* 
-* For example: To get the width of the image or thumbnail, you can now use
-* $theImageArray['width'] instead of $theImageArray[1]
 *
-* You can also define what size you want for the full size img (param 3)
-* and the thumbnails (param 4).
+* You can also define what size you want for the full size img (param 1)
+* and the thumbnails (param 2).
 *
 * Standard sizes are 'full' and 'thumbnail'
 *
 **/
-function aim_get_the_images($showImg = false, $showThumbs = false, $imgSize = 'full', $thumbSize = 'thumbnail') {
-  $images = array();
-  $imgs = array();
-  $thumbnails = array();
-  $thumbs = array();
+function aim_get_the_images($imgSize = 'full', $thumbSize = 'thumbnail') {
+  $result = array();
 
-  $array = aim_get_post_slide_images($imgSize, $thumbSize);
-  $args = array(
-    0 => 'src',
-    1 => 'width',
-    2 => 'height',
-    3 => 'resized'
+  $props = aim_get_post_slide_images($imgSize, $thumbSize);
+  $keys = array(
+    'full_src',
+    'full_width',
+    'full_height',
+    'resized',
+    'thumb_src',
+    'thumb_width',
+    'thumb_height',
+    'resized',
+    'text'
   );
 
   $i = 0;
-  foreach ($array as $name => $arr) {
-    if($showImg) $images[$i] = $array[$name][1];
-    if($showThumbs) $thumbnails[$i] = $array[$name][0];
+  foreach ($props as $name => $arr) {
+    $result[$i] = array_combine($keys, array_merge($props[$name][1], $props[$name][0], (array)$props[$name][2]));
     $i++;
   }
-  
- /**
-  * IMAGES
-  **/
-  if($showImg) {
-    $i = 0;
-    foreach ($images as $key => $value) {
-      foreach ($images[$i] as $key => $value) {
-        $type = $args[$key];
-        $imgs[$i][$type] = $value;
-      } $i++;
-    }
-  }
 
- /**
-  * THUMBNAILS
-  **/
-  if($showThumbs) {
-    $i = 0;
-    foreach ($thumbnails as $key => $value) {
-      foreach ($thumbnails[$i] as $key => $value) {
-        $type = $args[$key];
-        $thumbs[$i][$type] = $value;
-      } $i++;
-    }
-  }
-
-  return array(
-    'imgs' => $imgs,
-    'thumbs' => $thumbs
-  );
+  return $result;
 }

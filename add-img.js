@@ -104,7 +104,7 @@ doc.on('click', '.add-more-slides', function() {
   	var newAmount = ++slideAmount;
   	$(hiddenInput).val(newAmount);
 
-  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><a class="get-image button-primary" data-num="'+newAmount+'">Add image</a><a class="remove-slide button-secondary" data-num="'+newAmount+'">Delete</a></div>';
+  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><textarea name="text_image'+newAmount+'" id="text_image'+newAmount+'" class="id_text" data-num="'+newAmount+'"></textarea><a class="get-image button-primary" data-num="'+newAmount+'">Add image</a><a class="remove-slide button-secondary" data-num="'+newAmount+'">Delete</a></div>';
 
   	$(html).insertBefore($('#droppable .add-more-slides'));
 	}
