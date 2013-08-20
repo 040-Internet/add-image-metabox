@@ -67,7 +67,7 @@ doc.on('click', '.get-image', function() {
       $('.img-preview[data-num="'+num+'"]').append('<img src="'+attachment.sizes.thumbnail.url+'"/>');
   		num = null;
     } else {
-      return _orig_send_attachment.apply( this, [props, attachment] );
+      return _orig_send_attachment.apply(this, [props, attachment]);
     }
   }
 
