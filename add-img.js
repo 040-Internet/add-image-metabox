@@ -55,13 +55,12 @@ doc.on('click', '.remove-slide', function() {
 var _custom_media = true;
 var _orig_send_attachment = wp.media.editor.send.attachment;
 doc.on('click', '.get-image', function() {
-	var send_attachment_bkp = wp.media.editor.send.attachment;
 	num = $(this).data('num');
 	formfield = $('.id_img[data-num="'+num+'"]').attr('name');
 	_custom_media = true;
 
   wp.media.editor.send.attachment = function(props, attachment) {
-    if ( _custom_media ) {
+    if(_custom_media) {
 	    _custom_media = false;
 
 	    $('input[name="'+formfield+'"]').val(attachment.id);
@@ -87,6 +86,7 @@ doc.on('click', '.get-image', function() {
 doc.on('click', '.media-modal-close, .media-modal-backdrop', function() {
 	_custom_media = false;
 });
+
 
 
 /**
