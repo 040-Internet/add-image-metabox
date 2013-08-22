@@ -52,28 +52,30 @@ doc.on('click', '.remove-slide', function() {
  * we return the normal wordpress media uploader.
  *
  **/
-var _custom_media = true;
-var _orig_send_attachment = wp.media.editor.send.attachment;
-doc.on('click', '.get-image', function() {
-	num = $(this).data('num');
-	formfield = $('.id_img[data-num="'+num+'"]').attr('name');
-	_custom_media = true;
+if(wp.media) {
+	var _custom_media = true;
+	var _orig_send_attachment = wp.media.editor.send.attachment;
+	doc.on('click', '.get-image', function() {
+		num = $(this).data('num');
+		formfield = $('.id_img[data-num="'+num+'"]').attr('name');
+		_custom_media = true;
+		
+	  wp.media.editor.send.attachment = function(props, attachment) {
+	    if(_custom_media) {
+		    _custom_media = false;
 
-  wp.media.editor.send.attachment = function(props, attachment) {
-    if(_custom_media) {
-	    _custom_media = false;
+		    $('input[name="'+formfield+'"]').val(attachment.id);
+	      $('.img-preview[data-num="'+num+'"]').append('<img src="'+attachment.sizes.thumbnail.url+'"/>');
+	  		num = null;
+	    } else {
+	      return _orig_send_attachment.apply(this, [props, attachment]);
+	    }
+	  }
 
-	    $('input[name="'+formfield+'"]').val(attachment.id);
-      $('.img-preview[data-num="'+num+'"]').append('<img src="'+attachment.sizes.thumbnail.url+'"/>');
-  		num = null;
-    } else {
-      return _orig_send_attachment.apply(this, [props, attachment]);
-    }
-  }
-
-  wp.media.editor.open(this);
-	return false;
-});
+	  wp.media.editor.open(this);
+		return false;
+	});
+}
 
 
 
