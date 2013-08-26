@@ -16,7 +16,13 @@ doc.on('click', '.remove-slide', function() {
 	var number = $(this).data('num');
 	$(this).parent().remove();
 	var currSlideAmount = parseInt($('.slide-amount').val());
-	$('.slide-amount').val(--currSlideAmount);
+	
+	if($('.slide-amount').val() > '1') {
+		$('.slide-amount').val(--currSlideAmount);
+	} else {
+		var html = '<div class="image-entry"><input type="hidden" name="image1" id="image1" class="id_img" data-num="1"><div class="img-preview" data-num="1"></div><textarea name="text_image1" id="text_image1" class="id_text" data-num="1"></textarea><a class="get-image button-primary" data-num="1">Add image</a><a class="remove-slide button-secondary" data-num="1">Delete</a></div>';
+  	$(html).insertBefore($('#droppable .add-more-slides'));
+	}
 
 	// reorder images
 	$('#droppable .image-entry').each(function(i){
