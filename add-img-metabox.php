@@ -23,6 +23,15 @@ This plugin is licensed under GPLv2, you can read about the license here: (http:
 
 
 /**
+ *
+ * Load the function file
+ *
+ **/
+require_once('options/add-img-options.php');
+
+
+
+/**
 *
 * Javascripts & CSS
 *
@@ -102,17 +111,19 @@ function aim_list_my_image_slots() {
 **/
 add_action('add_meta_boxes', 'aim_metabox');
 function aim_metabox() {
-  $cpts = apply_filters('images_cpt', array('page'));
+  $cpts = get_option('add_image_metabox_settings');
 
-  foreach($cpts as $cpt) {
-    add_meta_box(
-      'add_img_metabox',
-      __('Add images'),
-      'aim_markup',
-      $cpt,
-      'normal',
-      'core'
-    );
+  if($cpts) {
+    foreach($cpts as $cpt) {
+      add_meta_box(
+        'add_img_metabox',
+        __('Add images'),
+        'aim_markup',
+        $cpt,
+        'normal',
+        'core'
+      );
+    }
   }
 }
 

@@ -4,7 +4,9 @@ ADD IMG METABOX PLUGIN HOW TO:
 
 1. Install and activate the plugin
 2. Add the code below outside your loop.
-3. You're good to go!!
+3. Go to Appearance -> Add Image Metabox
+4. Select which post type you want the option to be shown on
+5. You're good to go!!
 
 
 ---------------------------------------------
