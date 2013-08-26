@@ -1,5 +1,5 @@
 (function($) {
-
+$(function() {
 	function reorderImages(){
 		//reorder images
 		$('#droppable .image-entry').each(function(i){
@@ -92,5 +92,6 @@
 		    }
 		  });
 	}
-
+	
+});
 }(jQuery));
