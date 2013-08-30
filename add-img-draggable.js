@@ -9,7 +9,9 @@ $(function() {
 			$(this).find('.del-image').attr('data-num',num);
 			$(this).find('div.img-preview').attr('data-num',num);
 			var $input = $(this).find('input');
+			var $textarea = $(this).find('textarea');
 			$input.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
+			$textarea.attr('name','text_image'+num).attr('id','text_image'+num).attr('data-num',num);
 		});
 	}
 
