@@ -65,8 +65,8 @@ function add_image_metabox_admin_page_markup() { ?>
   <div class="wrap">
 
 	  <?php screen_icon('themes'); ?>
-		<h2>Custom Sidebars</h2>
-		<p>This is a option page for the plugin: <strong>Custom Sidebar</strong>.</p>
+		<h2>Add image metabox</h2>
+		<p>This is a option page for the plugin: <strong>Add image metabox</strong>.</p>
 
 	  <form action="options.php" method="post"><?php
 	    settings_fields( 'add_image_metabox_settings' );
@@ -77,7 +77,7 @@ function add_image_metabox_admin_page_markup() { ?>
 
 	    <div class="add-img-mb-box">
 	    	<div class="sidebar-name"><h3>Where do you want to display the options?</h3></div>
-	    	<p>Here you can customize how the plugin should handle things and where to display the custom sidebar option checkboxes.</p>
+	    	<p>Here you can customize how the plugin should handle things and where to display the image metaboxes.</p>
 
 	    
 		    <div class="postbox">
