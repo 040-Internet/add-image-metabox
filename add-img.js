@@ -4,6 +4,10 @@ var doc = $(document);
 var formfield = null;
 var num = '';
 
+var title = $('.id_title').prev().html();
+var desc = $('.id_text').prev().html();
+var link = $('.id_link').prev().html();
+
 
 
 /**
@@ -20,7 +24,7 @@ doc.on('click', '.remove-slide', function() {
 	if($('.slide-amount').val() > '1') {
 		$('.slide-amount').val(--currSlideAmount);
 	} else {
-		var html = '<div class="image-entry"><input type="hidden" name="image1" id="image1" class="id_img" data-num="1"><div class="img-preview" data-num="1"></div><textarea name="text_image1" id="text_image1" class="id_text" data-num="1"></textarea><a class="get-image button-primary" data-num="1">Add image</a><a class="remove-slide button-secondary" data-num="1">Delete</a></div>';
+		var html = '<div class="image-entry"><input type="hidden" name="image1" id="image1" class="id_img" data-num="1"><div class="img-preview" data-num="1"></div><p>'+title+'</p><input type="text" name="title_image1" id="title_image1" class="id_title" data-num="1"><p>'+desc+'</p><textarea name="text_image1" id="text_image1" class="id_text" data-num="1"></textarea><p>'+link+'</p><input type="text" name="link_image1" id="link_image1" class="id_link" data-num="1"><a class="get-image button-primary" data-num="1">Add image</a><a class="remove-slide button-secondary" data-num="1">Delete</a></div>';
   	$(html).insertBefore($('#droppable .add-more-slides'));
 	}
 
@@ -31,8 +35,14 @@ doc.on('click', '.remove-slide', function() {
 		$(this).find('.get-image').attr('data-num',num);
 		$(this).find('.del-image').attr('data-num',num);
 		$(this).find('div.img-preview').attr('data-num',num);
-		var $input = $(this).find('input');
-		$input.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
+		var $image = $(this).find('input.id_img');
+		var $title = $(this).find('input.id_title');
+		var $textarea = $(this).find('textarea');
+		var $link = $(this).find('input.id_link');
+		$image.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
+		$title.attr('name','title_image'+num).attr('id','title_image'+num).attr('data-num',num);
+		$textarea.attr('name','text_image'+num).attr('id','text_image'+num).attr('data-num',num);
+		$link.attr('name','link_image'+num).attr('id','link_image'+num).attr('data-num',num);
 	});
 });
 
@@ -112,7 +122,7 @@ doc.on('click', '.add-more-slides', function() {
   	var newAmount = ++slideAmount;
   	$(hiddenInput).val(newAmount);
 
-  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><textarea name="text_image'+newAmount+'" id="text_image'+newAmount+'" class="id_text" data-num="'+newAmount+'"></textarea><a class="get-image button-primary" data-num="'+newAmount+'">Add image</a><a class="remove-slide button-secondary" data-num="'+newAmount+'">Delete</a></div>';
+  	var html = '<div class="image-entry"><input type="hidden" name="image'+newAmount+'" id="image'+newAmount+'" class="id_img" data-num="'+newAmount+'"><div class="img-preview" data-num="'+newAmount+'"></div><p>'+title+'</p><input type="text" name="title_image'+newAmount+'" id="title_image'+newAmount+'" class="id_title" data-num="'+newAmount+'"><p>'+desc+'</p><textarea name="text_image'+newAmount+'" id="text_image'+newAmount+'" class="id_text" data-num="'+newAmount+'"></textarea><p>'+link+'</p><input type="text" name="link_image'+newAmount+'" id="link_image'+newAmount+'" class="id_link" data-num="'+newAmount+'"><a class="get-image button-primary" data-num="'+newAmount+'">Add image</a><a class="remove-slide button-secondary" data-num="'+newAmount+'">Delete</a></div>';
 
   	$(html).insertBefore($('#droppable .add-more-slides'));
 	}

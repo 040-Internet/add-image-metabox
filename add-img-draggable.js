@@ -8,10 +8,14 @@ $(function() {
 			$(this).find('.get-image').attr('data-num',num);
 			$(this).find('.del-image').attr('data-num',num);
 			$(this).find('div.img-preview').attr('data-num',num);
-			var $input = $(this).find('input');
+			var $image = $(this).find('input.id_img');
+			var $title = $(this).find('input.id_title');
 			var $textarea = $(this).find('textarea');
-			$input.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
+			var $link = $(this).find('input.id_link');
+			$image.attr('name','image'+num).attr('id','image'+num).attr('data-num',num);
+			$title.attr('name','title_image'+num).attr('id','title_image'+num).attr('data-num',num);
 			$textarea.attr('name','text_image'+num).attr('id','text_image'+num).attr('data-num',num);
+			$link.attr('name','link_image'+num).attr('id','link_image'+num).attr('data-num',num);
 		});
 	}
 

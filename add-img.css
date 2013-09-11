@@ -10,10 +10,19 @@
 	float: left;
 }
 
+.id_title,
+.id_link {
+	width: 99%;
+	display: block;
+	border: 1px solid #dfdfdf;
+}
+
 .id_text {
 	width: 99%;
 	height: 100px;
 }
+
+.image-entry p {margin-bottom: 0px;}
 
 .image-entry {
 	float: left;

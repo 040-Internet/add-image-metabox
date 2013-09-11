@@ -12,7 +12,7 @@ This is a revision of a plugin called "Multi Image Metabox" originally created b
 What did I change/add?
 - Added a functions to add unlimited new slides for each post type.
 - Added a function to get the images in a nice array, to make it easier to use them.
-- Added a textarea to each image slot.
+- Added a title-, textarea- and link fields to each image slot.
 - Made the delete button remove the slide you press delete on.
 - I've also made the code structure more readable (imo).
 
@@ -76,7 +76,9 @@ function aim_list_my_image_slots() {
     $imageTextArray = array();
     for ($i=1; $i <= $slideAmount; $i++) { 
       $imageArray['image'.$i] = '_image' . $i;
+      $imageTitleArray['image'.$i] = '_image' . $i;
       $imageTextArray['image'.$i] = '_image' . $i;
+      $imageLinkArray['image'.$i] = '_image' . $i;
     }
   } else {
     $imageArray = array(
@@ -85,16 +87,30 @@ function aim_list_my_image_slots() {
       'image3' => '_image3',
     );
 
+    $imageTitleArray = array(
+      'title_image1' => 'title_image1',
+      'title_image2' => 'title_image2',
+      'title_image3' => 'title_image3',
+    );
+
     $imageTextArray = array(
       'text_image1' => 'text_image1',
       'text_image2' => 'text_image2',
       'text_image3' => 'text_image3',
     );
+
+    $imageLinkArray = array(
+      'link_image1' => 'link_image1',
+      'link_image2' => 'link_image2',
+      'link_image3' => 'link_image3',
+    );
   }
 
   $slots = array(
     'imgs' => $imageArray,
-    'texts' => $imageTextArray
+    'titles' => $imageTitleArray,
+    'texts' => $imageTextArray,
+    'links' => $imageLinkArray
   );
 
   return $slots;
@@ -130,34 +146,9 @@ function aim_metabox() {
 
 /**
 *
-* SAVE METABOX 
+* MARKUP
 *
-**/
-add_action('save_post', 'aim_save_details'); 
-function aim_save_details($post_ID) { 
-  if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-    return $post_ID;
-  }
-   
-  update_post_meta($post_ID, 'slide-amount', $_POST['slide-amount']);
-
-  $image_slots = aim_list_my_image_slots();
-  foreach($image_slots['imgs'] as $k => $i) {
-    if(isset($_POST[$k])) {
-      check_admin_referer('image-slide-save_'.$_POST['post_ID'], 'image-slide-nonce');
-      update_post_meta($post_ID, $i, esc_html($_POST[$k]));
-      update_post_meta($post_ID,'text_'.$i, esc_html($_POST['text_'.$k]));
-    }
-  }
-
-}
-
-
-/**
-*
-* MARKUP AND LOAD STUFF
-*
-* This functions handles all the markup and loading scripts/styles etc
+* This functions handles all the markup
 *
 **/
 function aim_markup($post) {
@@ -177,13 +168,21 @@ function aim_markup($post) {
   $z = 1;
   foreach($image_slots['imgs'] as $k=>$i) {
     $meta = get_post_meta($post->ID,$i,true);
+    $title = get_post_meta($post->ID,'title_'.$i,true);
     $text = get_post_meta($post->ID,'text_'.$i,true);
+    $link = get_post_meta($post->ID,'link_'.$i,true);
     $img = ($meta) ? '<img src="'.wp_get_attachment_thumb_url($meta).'" alt="">' : '';
+
     echo '<div class="image-entry">';
     echo '<input type="hidden" name="'.$k.'" id="'.$k.'" class="id_img" data-num="'.$z.'" value="'.$meta.'">';
     echo '<div class="img-preview" data-num="'.$z.'">'.$img.'</div>';
 
+    echo '<p>'.__('Title').'</p>';
+    echo '<input type="text" name="title_'.$k.'" id="title_'.$k.'" class="id_title" data-num="'.$z.'" value="'.$title.'">';
+    echo '<p>'.__('Description').'</p>';
     echo '<textarea name="text_'.$k.'" id="text_'.$k.'" class="id_text" data-num="'.$z.'">'.$text.'</textarea>';
+    echo '<p>'.__('Link').'</p>';
+    echo '<input type="text" name="link_'.$k.'" id="link_'.$k.'" class="id_link" data-num="'.$z.'" value="'.$link.'">';
 
     echo '<a class="get-image button-primary" data-num="'.$z.'">'.__('Add image').'</a>';
     echo '<a class="remove-slide button-secondary" data-num="'.$z.'">'.__('Delete').'</a>';
@@ -193,6 +192,31 @@ function aim_markup($post) {
   echo '<div class="add-more-slides" data-action="add">+</div>';
   echo '</div>';
 
+}
+
+/**
+*
+* SAVE METABOX 
+*
+**/
+add_action('save_post', 'aim_save_details'); 
+function aim_save_details($post_ID) { 
+  if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+    return $post_ID;
+  }
+   
+  update_post_meta($post_ID, 'slide-amount', $_POST['slide-amount']);
+
+  $image_slots = aim_list_my_image_slots();
+  foreach($image_slots['imgs'] as $k => $i) {
+    if(isset($_POST[$k])) {
+      check_admin_referer('image-slide-save_'.$_POST['post_ID'], 'image-slide-nonce');
+      update_post_meta($post_ID, $i, esc_html($_POST[$k]));
+      update_post_meta($post_ID,'title_'.$i, esc_html($_POST['title_'.$k]));
+      update_post_meta($post_ID,'text_'.$i, esc_html($_POST['text_'.$k]));
+      update_post_meta($post_ID,'link_'.$i, esc_html($_POST['link_'.$k]));
+    }
+  }
 }
 
 
@@ -219,7 +243,13 @@ function aim_get_post_slide_images($large = null, $small = null) {
 
   $imgAndThumb = array();
   foreach($imgsWithIds as $k => $id) {
-    $imgAndThumb[$k] = array(wp_get_attachment_image_src($id, $small), wp_get_attachment_image_src($id, $large), get_post_meta($the_id, 'text_'.$image_slots['texts'][$k], true));
+    $imgAndThumb[$k] = array(
+      wp_get_attachment_image_src($id, $small),
+      wp_get_attachment_image_src($id, $large),
+      get_post_meta($the_id, 'title_'.$image_slots['titles'][$k], true),
+      get_post_meta($the_id, 'text_'.$image_slots['texts'][$k], true),
+      get_post_meta($the_id, 'link_'.$image_slots['links'][$k], true)
+    );
   }
   return $imgAndThumb;
 }
@@ -250,12 +280,21 @@ function aim_get_the_images($imgSize = 'full', $thumbSize = 'thumbnail') {
     'thumb_width',
     'thumb_height',
     'resized',
-    'text'
+    'title',
+    'text',
+    'link'
   );
 
   $i = 0;
   foreach ($props as $name => $arr) {
-    $result[$i] = array_combine($keys, array_merge($props[$name][1], $props[$name][0], (array)$props[$name][2]));
+    $result[$i] = array_combine(
+      $keys, array_merge(
+        $props[$name][1],
+        $props[$name][0],
+        (array)$props[$name][2],
+        (array)$props[$name][3],
+        (array)$props[$name][4])
+      );
     $i++;
   }
 
