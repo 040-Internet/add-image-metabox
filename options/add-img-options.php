@@ -56,6 +56,21 @@ function add_image_metabox_settings_validate($args) {
 
 /**
  *
+ * Admin notices
+ *
+ * Display the validation errors and update messages
+ *
+ **/
+if(is_admin() && $_GET['page'] == 'add_image_metabox_settings') {
+	add_action('admin_notices', 'add_image_metabox_admin_notices');
+	function add_image_metabox_admin_notices() {
+	  settings_errors();
+	}
+}
+
+
+/**
+ *
  * add_image_metabox_admin_page_markup
  *
  * This function handles the markup for your plugin settings page
